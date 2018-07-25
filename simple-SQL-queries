@@ -1,2 +1,14 @@
 https://pgexercises.com/questions/basic/
 
+
+/*Retrieve everything from a table*/
+
+SELECT * FROM cd.facilities;
+
+
+/*Retrieve specific columns from a table*/
+
+SELECT name, membercost FROM cd.facilities;
+
+
+/**/
