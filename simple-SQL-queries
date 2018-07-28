@@ -2,9 +2,9 @@ https://pgexercises.com/questions/basic/
 
 
 /*Retrieve everything from a table*/
-
+```
 SELECT * FROM facilities;
-
+```
 
 /*Retrieve specific columns from a table*/
 
@@ -37,4 +37,13 @@ SELECT * FROM facilities
 WHERE facid IN (1,5);
 
 
-/**/
+/*Classify results into buckets*/
+
+SELECT name , CASE
+WHEN monthlymaintenance > 100 THEN 'expensive'
+WHEN monthlymaintenance <= 100 THEN 'cheap'
+END "cost"
+FROM facilities;
+
+
+/* */
