@@ -3,12 +3,38 @@ https://pgexercises.com/questions/basic/
 
 /*Retrieve everything from a table*/
 
-SELECT * FROM cd.facilities;
+SELECT * FROM facilities;
 
 
 /*Retrieve specific columns from a table*/
 
-SELECT name, membercost FROM cd.facilities;
+SELECT name, membercost FROM facilities;
+
+
+/*Control which rows are retrieved*/
+
+SELECT * FROM facilities
+WHERE membercost > 0;
+
+
+/*Control which rows are retrieved - part 2*/
+
+SELECT facid, name, membercost, monthlymaintenance
+FROM facilities
+WHERE membercost > 0
+AND membercost < (monthlymaintenance/50);
+
+
+/*Basic string searches*/
+
+SELECT * FROM facilities 
+WHERE name LIKE '%Tennis%';
+
+
+/*Matching against multiple possible values*/
+
+SELECT * FROM facilities
+WHERE facid IN (1,5);
 
 
 /**/
