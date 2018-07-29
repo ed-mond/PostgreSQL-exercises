@@ -61,4 +61,27 @@ ORDER BY surname
 LIMIT 10;
 
 
---
+--Combining results from multiple queries
+
+SELECT surname FROM members
+UNION
+SELECT name FROM facilities;
+
+
+--Simple aggregation
+
+SELECT joindate AS latest
+FROM members 
+ORDER BY joindate DESC 
+LIMIT 1;
+
+/* Also possible to 'use max(joindate) as latest'*/
+
+
+--More aggregation
+
+SELECT firstname, surname, joindate
+FROM members 
+WHERE joindate = (SELECT max(joindate) FROM members);
+
+/*ORDER BY & LIMIT are held back by the unlikely possibility of 2 people joining at the exact same time*/
