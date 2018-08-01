@@ -1,0 +1,49 @@
+https://pgexercises.com/questions/joins/
+
+--Retrieve the start times of members' bookings
+
+SELECT b.starttime FROM bookings b
+JOIN members m ON b.memid=m.memid
+WHERE surname = 'Farrell'
+AND firstname = 'David';
+
+
+--Work out the start times of bookings for tennis courts
+
+SELECT starttime, name FROM bookings b
+JOIN facilities f ON b.facid=f.facid
+WHERE f.name LIKE 'Tennis Court%'
+AND starttime between '2012-09-21' AND '2012-09-21 23:59:59'
+ORDER BY starttime;
+
+/*Can also use '...WHERE f.facid IN (0,1)...' to find tennis courts*/
+
+
+--Produce a list of all members who have recommended another member
+
+SELECT DISTINCT m1.firstname, m1.surname
+FROM members m1
+INNER JOIN members m2 ON m1.memid=m2.recommendedby
+ORDER BY m1.surname;
+
+
+--Produce a list of all members, along with their recommender
+
+SELECT DISTINCT m1.firstname AS memfname, m1.surname AS memsname, m2.firstname AS recfname, m2.surname AS recsname
+FROM members m1
+LEFT OUTER JOIN members m2 ON m2.memid=m1.recommendedby
+ORDER BY m1.surname, m1.firstname;
+
+
+--Produce a list of all members who have used a tennis court
+
+SELECT DISTINCT CONCAT(firstname,' ',surname) AS member, f.name AS facility
+FROM members m
+JOIN bookings b ON m.memid=b.memid
+JOIN facilities f ON b.facid=f.facid
+WHERE f.name LIKE 'Tennis Court%'
+ORDER BY member;
+
+
+--Produce a list of costly bookings
+
