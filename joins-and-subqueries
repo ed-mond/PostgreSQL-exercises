@@ -47,3 +47,18 @@ ORDER BY member;
 
 --Produce a list of costly bookings
 
+SELECT b.starttime, CONCAT(m.firstname,' ',m.surname) AS member,f.name AS facility, CASE
+WHEN b.memid = 0 THEN f.guestcost*b.slots
+WHEN b.memid != 0 THEN f.membercost*b.slots
+END as cost
+FROM bookings b
+LEFT JOIN members m ON b.memid=m.memid
+LEFT JOIN facilities f ON b.facid=f.facid
+WHERE b.starttime between '2012-09-14' AND '2012-09-14 23:59:59'
+  AND ((b.memid=0 AND f.guestcost*b.slots > 30)
+  OR (b.memid !=0 AND f.membercost*b.slots > 30))
+ORDER BY cost DESC;
+
+
+--Produce a list of all members, along with their recommender, using no joins.
+
