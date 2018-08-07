@@ -62,3 +62,28 @@ ORDER BY cost DESC;
 
 --Produce a list of all members, along with their recommender, using no joins.
 
+SELECT DISTINCT m.firstname||' '||m.surname AS member,
+(SELECT r.firstname||' '||r.surname AS recommender
+ FROM members r
+ WHERE r.memid=m.recommendedby)
+FROM members m
+ORDER BY member
+
+
+--Produce a list of costly bookings, using a subquery
+
+SELECT member, facility, cost
+FROM (
+	SELECT m.firstname||' '||m.surname AS member, f.name AS facility, CASE
+	WHEN b.memid = 0 THEN f.guestcost*b.slots
+	WHEN b.memid != 0 THEN f.membercost*b.slots
+	END as cost
+  	FROM members m
+  	LEFT JOIN bookings b ON b.memid=m.memid
+  	LEFT JOIN facilities f ON f.facid=b.facid
+  	WHERE b.starttime between '2012-09-14' AND '2012-09-14 23:59:59') AS bookings
+WHERE cost > 30
+ORDER BY cost DESC;
+
+
+--
