@@ -84,6 +84,3 @@ FROM (
   	WHERE b.starttime between '2012-09-14' AND '2012-09-14 23:59:59') AS bookings
 WHERE cost > 30
 ORDER BY cost DESC;
-
-
---
