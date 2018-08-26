@@ -21,7 +21,45 @@ INSERT INTO facilities VALUES
 
 INSERT INTO facilities
 (facid, name, membercost, guestcost, initialoutlay, monthlymaintenance)
-SELECT 9, 'Spa', 20, 30, 100000, 800;
+SELECT (SELECT max(facid) from facilities)+1, 'Spa', 20, 30, 100000, 800;
 
 
---
+--Update some existing data
+
+UPDATE facilities
+SET initialoutlay=10000
+WHERE name='Tennis Court 2';
+
+
+--Update multiple rows and columns at the same time
+
+UPDATE facilities
+SET membercost = 6, guestcost = 30
+WHERE facid IN (0,1);
+
+
+--Update a row based on the contents of another row
+
+UPDATE facilities
+SET membercost = (SELECT membercost FROM facilities WHERE facid=0)*1.1,
+guestcost = (SELECT guestcost FROM facilities WHERE facid=0)*1.1
+WHERE facid = 1;
+
+OR
+
+UPDATE facilities f
+SET membercost = f2.membercost*1.1,
+guestcost = f2.guestcost*1.1
+FROM (SELECT * FROM facilities WHERE facid = 0) f2
+WHERE f.facid = 1;
+
+
+--Delete all bookings
+
+DELETE FROM bookings;
+
+
+--Delete a member from the cd.members table
+
+DELETE FROM members
+WHERE memid = 37;
