@@ -63,3 +63,9 @@ DELETE FROM bookings;
 
 DELETE FROM members
 WHERE memid = 37;
+
+
+--Delete based on a subquery
+
+DELETE FROM members
+WHERE memid NOT IN (SELECT memid FROM cd.bookings);
