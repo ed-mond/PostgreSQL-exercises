@@ -2,3 +2,60 @@ https://pgexercises.com/questions/aggregates/
 
 --Count the number of facilities
 
+SELECT COUNT(facid) FROM facilities;
+
+
+--Count the number of expensive facilities
+
+SELECT COUNT(*) FROM facilities
+WHERE guestcost >= 10;
+
+
+--Count the number of recommendations each member makes.
+
+SELECT recommendedby, COUNT(recommendedby) FROM members
+WHERE recommendedby IS NOT NULL
+GROUP BY recommendedby
+ORDER BY recommendedby;
+
+
+--List the total slots booked per facility
+
+SELECT facid, SUM(slots) AS "Total Slots" FROM bookings
+GROUP BY facid
+ORDER BY facid;
+
+
+--List the total slots booked per facility in a given month
+
+SELECT facid, SUM(slots) AS "Total Slots" FROM bookings
+WHERE starttime >= '2012-09-01'
+AND starttime < '2012-10-01'
+GROUP BY facid
+ORDER BY "Total Slots";
+
+
+--List the total slots booked per facility per month
+
+SELECT facid, EXTRACT(month from starttime) AS "month", SUM(slots) AS "Total Slots" FROM bookings
+WHERE starttime >= '2012-01-01' AND starttime < '2013-01-01'
+GROUP BY facid, month
+ORDER BY facid, month
+
+
+--Find the count of members who have made at least one booking
+
+SELECT COUNT(DISTINCT memid) FROM bookings
+
+
+--List facilities with more than 1000 slots booked
+
+SELECT facid, SUM(slots) AS "Total Slots" FROM bookings
+GROUP BY facid
+HAVING SUM(slots) > 1000
+ORDER BY facid
+
+
+--Find the total revenue of each facility
+
+
