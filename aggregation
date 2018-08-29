@@ -58,4 +58,50 @@ ORDER BY facid
 
 --Find the total revenue of each facility
 
+SELECT f.name, SUM(slots*CASE
+  WHEN b.memid = 0 THEN f.guestcost
+  ELSE f.membercost
+  END) AS revenue
+FROM bookings b
+JOIN facilities f ON b.facid = f.facid
+GROUP BY f.name
+ORDER BY revenue
+
+
+--Find facilities with a total revenue less than 1000
+
+SELECT name, revenue
+FROM (SELECT f.name, SUM(CASE
+      WHEN b.memid = 0 THEN b.slots * f.guestcost
+      ELSE b.slots * f.membercost
+      END) AS revenue
+FROM bookings b
+JOIN facilities f ON b.facid = f.facid
+GROUP BY f.name) AS subq
+WHERE revenue < 1000
+ORDER BY revenue
+
+
+--Output the facility id that has the highest number of slots booked
+
+SELECT facid, sum(slots) AS "Total Slots"
+FROM bookings
+GROUP BY facid
+HAVING sum(slots) = 
+(SELECT MAX(sum.ts2) FROM
+	(SELECT SUM(slots) AS ts2
+	 FROM bookings
+	 GROUP BY facid) AS sum)
+   
+/*simplified with a Common Table Expression (CTE)*/
+
+WITH sum AS (SELECT facid, sum(slots) AS ts
+			 FROM bookings
+			 GROUP BY facid)
+SELECT facid, ts
+FROM sum
+WHERE ts = (SELECT max(ts) FROM sum)
+
+
+--List the total slots booked per facility per month, part 2
 
