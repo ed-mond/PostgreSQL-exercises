@@ -40,12 +40,12 @@ ORDER BY "Total Slots";
 SELECT facid, EXTRACT(month from starttime) AS "month", SUM(slots) AS "Total Slots" FROM bookings
 WHERE starttime >= '2012-01-01' AND starttime < '2013-01-01'
 GROUP BY facid, month
-ORDER BY facid, month
+ORDER BY facid, month;
 
 
 --Find the count of members who have made at least one booking
 
-SELECT COUNT(DISTINCT memid) FROM bookings
+SELECT COUNT(DISTINCT memid) FROM bookings;
 
 
 --List facilities with more than 1000 slots booked
@@ -53,7 +53,7 @@ SELECT COUNT(DISTINCT memid) FROM bookings
 SELECT facid, SUM(slots) AS "Total Slots" FROM bookings
 GROUP BY facid
 HAVING SUM(slots) > 1000
-ORDER BY facid
+ORDER BY facid;
 
 
 --Find the total revenue of each facility
@@ -65,7 +65,7 @@ SELECT f.name, SUM(slots*CASE
 FROM bookings b
 JOIN facilities f ON b.facid = f.facid
 GROUP BY f.name
-ORDER BY revenue
+ORDER BY revenue;
 
 
 --Find facilities with a total revenue less than 1000
@@ -79,7 +79,7 @@ FROM bookings b
 JOIN facilities f ON b.facid = f.facid
 GROUP BY f.name) AS subq
 WHERE revenue < 1000
-ORDER BY revenue
+ORDER BY revenue;
 
 
 --Output the facility id that has the highest number of slots booked
@@ -91,17 +91,25 @@ HAVING sum(slots) =
 (SELECT MAX(sum.ts2) FROM
 	(SELECT SUM(slots) AS ts2
 	 FROM bookings
-	 GROUP BY facid) AS sum)
+	 GROUP BY facid) AS sum);
    
 /*simplified with a Common Table Expression (CTE)*/
 
 WITH sum AS (SELECT facid, sum(slots) AS ts
-			 FROM bookings
-			 GROUP BY facid)
+	FROM bookings
+	GROUP BY facid)
 SELECT facid, ts
 FROM sum
-WHERE ts = (SELECT max(ts) FROM sum)
+WHERE ts = (SELECT max(ts) FROM sum);
 
 
 --List the total slots booked per facility per month, part 2
+
+SELECT facid, EXTRACT (month FROM starttime) AS month, SUM(slots) AS slots FROM bookings
+WHERE starttime >= '2012-01-01' AND starttime < '2013-01-01'
+GROUP BY ROLLUP(facid, month)
+ORDER BY facid, month;
+
+
+--List the total hours booked per named facility
 
