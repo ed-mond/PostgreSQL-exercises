@@ -113,3 +113,29 @@ ORDER BY facid, month;
 
 --List the total hours booked per named facility
 
+SELECT b.facid, f.name, TRIM(TO_CHAR(SUM(b.slots*.5), '9999D00')) AS "Total Hours"
+FROM bookings b
+JOIN facilities f ON b.facid=f.facid
+GROUP BY b.facid, f.name
+ORDER BY b.facid;
+
+
+--List each member's first booking after September 1st 2012
+
+SELECT m.surname, m.firstname, m.memid, MIN(b.starttime) AS starttime
+FROM members m
+JOIN bookings b ON m.memid=b.memid
+WHERE starttime > '2012-09-01'
+GROUP BY m.surname, m.firstname, m.memid
+ORDER BY m.memid
+
+
+--Produce a list of member names, with each row containing the total member count
+
+SELECT count(*) over(), firstname, surname
+FROM members
+ORDER BY joindate
+
+
+--Produce a numbered list of members
+
