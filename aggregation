@@ -145,3 +145,24 @@ FROM members;
 
 --Output the facility id that has the highest number of slots booked, again
 
+SELECT facid, total
+FROM
+	(SELECT facid, sum(slots) AS total, rank() over(ORDER BY sum(slots) DESC)
+	FROM bookings
+	GROUP BY facid) as ranks
+WHERE rank = 1
+
+
+--Rank members by (rounded) hours used
+
+SELECT firstname, surname, ROUND(hours,-1), rank
+FROM
+	(SELECT m.firstname, m.surname, sum(b.slots*.5) as hours, rank() over(ORDER BY round(sum(b.slots*.5),-1) DESC)
+	FROM members m
+	JOIN bookings b ON m.memid=b.memid
+	GROUP BY m.firstname, m.surname, b.memid) as ranks
+ORDER BY rank, surname, firstname
+
+
+--Find the top three revenue generating facilities
+
