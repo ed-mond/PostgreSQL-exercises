@@ -139,3 +139,9 @@ ORDER BY joindate
 
 --Produce a numbered list of members
 
+SELECT ROW_NUMBER() OVER(ORDER BY joindate), firstname, surname
+FROM members;
+
+
+--Output the facility id that has the highest number of slots booked, again
+
