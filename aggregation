@@ -166,3 +166,27 @@ ORDER BY rank, surname, firstname
 
 --Find the top three revenue generating facilities
 
+WITH profit AS (SELECT f.name, SUM(slots*CASE
+WHEN b.memid = 0 THEN f.guestcost
+ELSE f.membercost
+END) AS revenue
+FROM bookings b
+JOIN facilities f ON b.facid = f.facid
+GROUP BY f.name)
+
+SELECT name, rank
+FROM (SELECT name, rank() over(ORDER BY revenue DESC) AS rank
+FROM profit) as profit2
+WHERE rank <= 3
+
+/* OR */
+
+SELECT name, rank FROM (
+  SELECT f.name as name, RANK() OVER(ORDER BY SUM(
+	CASE WHEN memid=0 THEN slots*guestcost
+	ELSE slots*membercost
+	END) DESC) as rank
+  FROM bookings b
+  JOIN facilities f ON b.facid=f.facid
+  GROUP BY f.name) as costs
+WHERE rank <= 3
