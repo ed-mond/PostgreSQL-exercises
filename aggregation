@@ -150,18 +150,17 @@ FROM
 	(SELECT facid, sum(slots) AS total, rank() over(ORDER BY sum(slots) DESC)
 	FROM bookings
 	GROUP BY facid) as ranks
-WHERE rank = 1
+WHERE rank = 1;
 
 
 --Rank members by (rounded) hours used
 
 SELECT firstname, surname, ROUND(hours,-1), rank
-FROM
-	(SELECT m.firstname, m.surname, sum(b.slots*.5) as hours, rank() over(ORDER BY round(sum(b.slots*.5),-1) DESC)
+FROM	(SELECT m.firstname, m.surname, sum(b.slots*.5) as hours, rank() over(ORDER BY round(sum(b.slots*.5),-1) DESC)
 	FROM members m
 	JOIN bookings b ON m.memid=b.memid
 	GROUP BY m.firstname, m.surname, b.memid) as ranks
-ORDER BY rank, surname, firstname
+ORDER BY rank, surname, firstname;
 
 
 --Find the top three revenue generating facilities
@@ -177,7 +176,7 @@ GROUP BY f.name)
 SELECT name, rank
 FROM (SELECT name, rank() over(ORDER BY revenue DESC) AS rank
 FROM profit) as profit2
-WHERE rank <= 3
+WHERE rank <= 3;
 
 /* OR */
 
@@ -189,4 +188,66 @@ SELECT name, rank FROM (
   FROM bookings b
   JOIN facilities f ON b.facid=f.facid
   GROUP BY f.name) as costs
-WHERE rank <= 3
+WHERE rank <= 3;
+
+
+--Classify facilities by value
+
+WITH profits AS (SELECT name, ntile(3) over(
+  ORDER BY SUM(
+  CASE WHEN memid=0 THEN slots*guestcost
+  ELSE slots*membercost
+  END)DESC) as rev
+FROM bookings b
+JOIN facilities f ON b.facid=f.facid
+GROUP BY name
+ORDER BY rev, name)
+
+SELECT name, CASE
+WHEN rev = 1 THEN 'high'
+WHEN rev = 2 THEN 'average'
+ELSE 'low'
+END as revenue
+FROM profits;
+
+/*OR*/
+
+SELECT name, CASE WHEN rev = 1 THEN 'high'
+WHEN rev = 2 THEN 'average'
+ELSE 'low'
+END as revenue
+FROM (
+  SELECT f.name, ntile(3) OVER(
+	ORDER BY SUM(CASE WHEN memid=0 THEN slots*guestcost
+		 ELSE slots*membercost
+		 END)DESC) as rev
+	FROM bookings b
+	JOIN facilities f ON b.facid=f.facid
+	GROUP BY f.name
+ 	ORDER BY rev, name) AS subquery;
+
+
+--Calculate the payback time for each facility
+
+SELECT name, initialoutlay/((revenue/3)-monthlymaintenance) AS months
+FROM (SELECT f.name, f.monthlymaintenance, f.initialoutlay,
+	  SUM(CASE WHEN memid=0 THEN slots*guestcost
+		   ELSE slots*membercost
+		   END) as revenue
+	  FROM bookings b
+	  JOIN facilities f ON b.facid=f.facid
+	  GROUP BY name, monthlymaintenance, initialoutlay) as profits
+ORDER BY name;
+
+
+--Calculate a rolling average of total revenue
+
+SELECT date, (SELECT sum(CASE WHEN memid=0 THEN slots*guestcost 
+			 ELSE slots*membercost 
+			 END) as money
+		  FROM bookings b
+		  JOIN facilities f ON b.facid=f.facid
+		  WHERE b.starttime > list.date - interval '14 days'
+		  AND b.starttime < list.date + interval '1 day')/15 as revenue
+FROM (SELECT cast(generate_series(timestamp '2012-08-01', '2012-08-31', '1 day') as date) as date) as list
+ORDER BY date;
