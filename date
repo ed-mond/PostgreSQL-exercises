@@ -1,3 +1,65 @@
 https://pgexercises.com/questions/date/
 
---
+--Produce a timestamp for 1 a.m. on the 31st of August 2012
+
+SELECT timestamp '2012-08-31 01:00:00';
+
+
+--Subtract timestamps from each other
+
+SELECT timestamp '2012-08-31 01:00:00' - '2012-07-30 01:00:00' as interval;
+
+
+--Generate a list of all the dates in October 2012
+
+SELECT generate_series(timestamp '2012-10-01', '2012-10-31', interval '1 day') as ts;
+
+
+--Get the day of the month from a timestamp
+
+SELECT extract(day FROM timestamp '2012-08-31');
+
+
+--Work out the number of seconds between timestamps
+
+SELECT extract(epoch FROM (SELECT timestamp '2012-09-02 00:00:00' - timestamp '2012-08-31 01:00:00'));
+
+
+--Work out the number of days in each month of 2012
+
+SELECT extract(month from year.month) as month,
+	     (year.month + interval '1 month')-year.month as days
+FROM (SELECT generate_series('2012-01-01', '2012-12-31', interval '1 month') as month) as year
+
+
+--Work out the number of days remaining in the month
+
+SELECT (date_trunc('month', date.time) + interval '1 month') - date_trunc('day', date.time) as remaining
+FROM (SELECT timestamp '2012-02-11 01:00:00' as time) as date
+
+
+--Work out the end time of bookings
+
+SELECT starttime, (starttime + (interval '30 mins')*slots) as endtime
+FROM bookings
+ORDER BY endtime DESC, starttime DESC
+LIMIT 10
+
+
+--Return a count of bookings for each month
+
+SELECT month.int as month, (SELECT count(*) FROM bookings 
+							WHERE starttime > date_trunc('month', month.int)
+							AND starttime < date_trunc('month', month.int)+ interval '1 month')
+FROM (SELECT generate_series('2012-07-01', '2013-01-01', interval '1 month') as int) as month
+
+/*OR, more efficiently*/
+
+SELECT date_trunc('month', starttime) as month, count(*)
+FROM bookings
+GROUP BY month
+ORDER BY month
+
+
+--Work out the utilisation percentage for each facility by month
+
