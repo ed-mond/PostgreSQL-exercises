@@ -49,8 +49,8 @@ LIMIT 10
 --Return a count of bookings for each month
 
 SELECT month.int as month, (SELECT count(*) FROM bookings 
-							WHERE starttime > date_trunc('month', month.int)
-							AND starttime < date_trunc('month', month.int)+ interval '1 month')
+			    WHERE starttime > date_trunc('month', month.int)
+			    AND starttime < date_trunc('month', month.int)+ interval '1 month')
 FROM (SELECT generate_series('2012-07-01', '2013-01-01', interval '1 month') as int) as month
 
 /*OR, more efficiently*/
@@ -63,3 +63,10 @@ ORDER BY month
 
 --Work out the utilisation percentage for each facility by month
 
+SELECT n as name, m as month, round(t/(25*cast(cast(m + interval '1 month' as date) - 
+											   cast(m as date) as numeric))*100, 1) as utilisation
+FROM(SELECT f.name as n, date_trunc('month', b.starttime) as m, sum(b.slots) as t
+FROM facilities f
+JOIN bookings b ON b.facid=f.facid
+GROUP BY n, m
+ORDER BY n, m) as inside
