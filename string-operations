@@ -1,2 +1,43 @@
 https://pgexercises.com/questions/string/
 
+--Format the names of members
+
+SELECT surname||', '||firstname as name FROM members;
+
+
+--Find facilities by a name prefix
+
+SELECT * FROM facilities WHERE name LIKE 'Tennis%';
+
+
+--Perform a case-insensitive search
+
+SELECT * FROM facilities WHERE name ILIKE 'tennis%';
+
+/*OR, convert all chars to uppercase*/
+
+SELECT * FROM facilities WHERE UPPER(name) LIKE 'TENNIS%'
+
+
+--Find telephone numbers with parentheses
+
+SELECT memid, telephone FROM members WHERE telephone LIKE '(%)%'
+
+
+--Pad zip codes with leading zeroes
+
+SELECT LPAD(CAST(zipcode AS char(5)), 5, '0') as zip FROM members ORDER BY zip
+
+
+--Count the number of members whose surname starts with each letter of the alphabet
+
+SELECT SUBSTR(surname, 1, 1) as letter, COUNT(SUBSTR(surname, 1, 1))
+FROM members
+GROUP BY letter
+ORDER BY letter
+
+
+--Clean up telephone numbers
+
+SELECT memid, TRANSLATE(telephone, '()- ', '') as telephone FROM members
+ORDER BY memid
