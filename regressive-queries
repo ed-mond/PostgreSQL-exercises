@@ -48,13 +48,13 @@ ORDER BY m.memid
 WITH RECURSIVE recs(r, m) AS (
   SELECT recommendedby, memid FROM members
   UNION ALL
-  SELECT m.recommendedby, recs.m
+  SELECT mem.recommendedby, recs.m
   FROM recs
-  JOIN members m ON recs.r=m.memid)
+  JOIN members mem ON recs.r=mem.memid)
  
- SELECT recs.m AS member, recs.r AS recommender, m.firstname, m.surname
+ SELECT recs.m AS member, recs.r AS recommender, mem.firstname, mem.surname
  FROM recs
- JOIN members m ON recs.r=m.memid
+ JOIN members mem ON recs.r=mem.memid
  WHERE recs.m=12 OR recs.m=22
  ORDER BY member, recommender DESC
  
