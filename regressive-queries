@@ -16,3 +16,45 @@ JOIN members m ON recs.recommender=m.memid
 
 --Find the downward recommendation chain for member ID 1
 
+WITH RECURSIVE recd(rec) AS (
+  SELECT memid FROM members WHERE memid=1
+  UNION ALL
+  SELECT m.memid
+  FROM recd
+  JOIN members m ON recd.rec=m.recommendedby)
+  
+SELECT m.memid, m.firstname, m.surname
+FROM recd
+JOIN members m ON recd.rec=m.recommendedby
+ORDER BY m.memid
+  
+/*OR*/
+
+WITH RECURSIVE recd(rec) AS (
+  SELECT memid FROM members WHERE recommendedby=1
+  UNION ALL
+  SELECT m.memid
+  FROM recd
+  JOIN members m ON recd.rec=m.recommendedby)
+  
+SELECT recd.rec, m.firstname, m.surname
+FROM recd
+JOIN members m ON recd.rec=m.memid
+ORDER BY m.memid
+  
+
+--Produce a CTE that can return the upward recommendation chain for any member
+
+WITH RECURSIVE recs(r, m) AS (
+  SELECT recommendedby, memid FROM members
+  UNION ALL
+  SELECT m.recommendedby, recs.m
+  FROM recs
+  JOIN members m ON recs.r=m.memid)
+ 
+ SELECT recs.m AS member, recs.r AS recommender, m.firstname, m.surname
+ FROM recs
+ JOIN members m ON recs.r=m.memid
+ WHERE recs.m=12 OR recs.m=22
+ ORDER BY member, recommender DESC
+ 
