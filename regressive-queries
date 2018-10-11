@@ -1,0 +1,18 @@
+https://pgexercises.com/questions/recursive/
+
+--Find the upward recommendation chain for member ID 27
+
+WITH RECURSIVE recommenders(recommender) AS
+(SELECT recommendedby FROM members WHERE memid=27 
+ UNION ALL
+ SELECT m.recommendedby
+ FROM recommenders recs
+ JOIN members m ON m.memid=recs.recommender)
+ 
+SELECT recs.recommender, m.firstname, m.surname
+FROM recommenders recs
+JOIN members m ON recs.recommender=m.memid
+
+
+--Find the downward recommendation chain for member ID 1
+
